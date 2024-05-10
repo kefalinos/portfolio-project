@@ -1,17 +1,58 @@
+----Queries used for data visualizations----
+--Followed by Queries for data Exploration and Data Cleaning--
 
---Original before nullingg--
+1.
+	
+Select SUM(new_cases) as total_cases, SUM(cast(new_deaths as int)) as total_deaths, SUM(cast(new_deaths as int))/SUM(New_Cases)*100 as DeathPercentage
+From PortfolioProject..CovidDeaths
+--Where location like '%states%'
+where continent is not null 
+--Group By date
+order by 1,2
+
+2.
+	
+Select location, SUM(cast(new_deaths as int)) as TotalDeathCount
+From PortfolioProject..CovidDeaths
+--Where location like '%states%'
+Where continent is null 
+and location not in ('World', 'European Union', 'International')
+Group by location
+order by TotalDeathCount desc
+
+3.
+	
+Select Location, Population, MAX(total_cases) as HighestInfectionCount,  Max((total_cases/population))*100 as PercentPopulationInfected
+From PortfolioProject..CovidDeaths
+--Where location like '%states%'
+Group by Location, Population
+order by PercentPopulationInfected desc
+
+4.
+	
+Select Location, Population,date, MAX(total_cases) as HighestInfectionCount,  Max((total_cases/population))*100 as PercentPopulationInfected
+From PortfolioProject..CovidDeaths
+--Where location like '%states%'
+Group by Location, Population, date
+order by PercentPopulationInfected desc
+	
+##########################################################################################################################################
+
+----Data Exploration and Data Cleaning----
+	
+--Original before nulling--
 
 Select * 
 From PortfolioProject..CovidDeaths
 Order By 3,4
 
-
-
+	
 Select * 
 From PortfolioProject..CovidDeaths
 where continent is not null
 Order By 3,4
 
+	
 Select * 
 From PortfolioProject..CovidVaccinations
 Order By 3,4
@@ -24,15 +65,12 @@ Order by 1,2
 
 -- Looking at Total Cases VS Total Deaths -- 
 
-
 Select location, date, total_cases,total_deaths, 
 (CONVERT(float, total_deaths) / NULLIF(CONVERT(float, total_cases), 0)) * 100 AS Deathpercentage
 from PortfolioProject..CovidDeaths
 order by 1,2
 
-
 -- Looking at Total Cases VS Total Deaths (United States) -- 
-
 
 Select location, date, total_cases,total_deaths, 
 (CONVERT(float, total_deaths) / NULLIF(CONVERT(float, total_cases), 0)) * 100 AS Deathpercentage
@@ -42,13 +80,11 @@ order by 1,2
 
 -- Shows % of population who got covid --
 
-
 Select location, date, total_cases,Population, 
 (CONVERT(float, total_cases) / NULLIF(CONVERT(float, Population), 0)) * 100 AS PopulationPercentage
 from PortfolioProject..CovidDeaths
 Where location like '%states%'
 order by 1,2
-
 
 -- Countries with highest death count per population --
 
@@ -65,7 +101,6 @@ from PortfolioProject..CovidDeaths
 where continent is not null
 Group by continent
 order by TotalDeathCount desc
-
 
 -- Global Numbers --
 
@@ -87,8 +122,8 @@ join PortfolioProject..CovidVaccinations vac
 	where dea.continent is not null
 order by 2,3
 
-
--- use CTE -- 
+-- use of CTE -- 
+	
 with PopvsVac (Continent, Location, Date, Population, New_Vaccinations, RollingPeopleVaccinated)
 as
 (
@@ -132,7 +167,6 @@ where dea.continent is not null
 
 select * , (RollingPeopleVaccinated/Population)*100
 From #PercentPopulationVaccinated
-
 
 --Creating view for visualizations in Tableau
 
